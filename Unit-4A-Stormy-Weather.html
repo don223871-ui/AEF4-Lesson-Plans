@@ -39,13 +39,38 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 @media(max-width:1050px){.layout{grid-template-columns:1fr}.sidebar{position:relative;top:auto;height:auto;max-height:330px}}
 @media(max-width:700px){.topbar-inner{padding:12px 16px}.progress-wrap{width:120px}.layout{padding:14px 10px 45px}.hero,.article{padding-left:22px;padding-right:22px}.hero h1{font-size:1.65rem}.article h1{font-size:1.4rem}}
 @media print{body{background:#fff}.topbar,.sidebar,.backtop{display:none}.layout{display:block;margin:0;padding:0}.content{border:0;box-shadow:none}.hero{padding:20px 0}.article{padding:10px 0}}
+
+/* Final lesson navigation + ownership/protection */
+.lesson-nav{max-width:1500px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);position:relative;z-index:45}
+.lesson-nav.bottom{border-top:1px solid var(--line);border-bottom:0;margin-top:0;margin-bottom:0;padding-top:18px;padding-bottom:18px}
+.lesson-nav a{display:inline-flex;align-items:center;justify-content:center;min-width:125px;padding:9px 15px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-weight:800;font-size:.86rem;text-decoration:none;box-shadow:0 4px 12px rgba(22,39,54,.04)}
+.lesson-nav a:hover{background:var(--surface-2);color:var(--accent-2);text-decoration:none;transform:translateY(-1px)}
+.lesson-nav .disabled{opacity:.42;pointer-events:none;cursor:default}.lesson-nav .list{border-color:rgba(49,95,122,.28);color:var(--accent-2)}
+body.protected{user-select:none;-webkit-user-select:none;-moz-user-select:none}
+.owner-badge{position:fixed;top:14px;right:18px;width:86px;height:86px;z-index:80;pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.08))}
+.owner-badge svg{width:100%;height:100%;display:block}
+.owner-badge .ring{fill:rgba(255,255,255,.92);stroke:rgba(49,95,122,.34);stroke-width:1.5}
+.owner-badge .initials{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:24px;font-weight:900;letter-spacing:1.5px;fill:#315f7a}
+.owner-badge .namepath{font-family:Inter,Segoe UI,Arial,sans-serif;font-size:8.4px;font-weight:800;letter-spacing:.2px;fill:#23465b}
+@media print{html,body{display:none!important}.lesson-nav,.owner-badge,.topbar,.sidebar,.backtop{display:none!important}}
+@media(max-width:700px){.lesson-nav{padding:10px 10px;gap:7px}.lesson-nav a{min-width:105px;padding:8px 10px;font-size:.78rem}.owner-badge{top:8px;right:8px;width:76px;height:76px}}
+
 </style>
 </head>
-<body>
+<body class="protected">
+<div class="owner-badge" aria-label="Mohammad Bakhshandeh ownership mark">
+  <svg viewBox="0 0 100 100" role="img" aria-label="MB Mohammad Bakhshandeh">
+    <defs><path id="ownerArc" d="M 17,50 A 33,33 0 0,1 83,50" fill="none"/></defs>
+    <circle class="ring" cx="50" cy="50" r="43"/>
+    <text class="initials" x="50" y="59" text-anchor="middle">MB</text>
+    <text class="namepath"><textPath href="#ownerArc" startOffset="50%" text-anchor="middle">Mohammad Bakhshandeh</textPath></text>
+  </svg>
+</div>
 <header class="topbar"><div class="topbar-inner">
 <div class="brand">Mohammad Bakhshandeh · Lesson Plan<small>Draft 1 · Complete Lesson Plan</small></div>
 <div class="progress-wrap"><div id="progress" class="progress"></div></div>
 </div></header>
+<nav class="lesson-nav top" aria-label="Lesson navigation"><a class="list" href="https://don223871-ui.github.io/AEF4-Lesson-Plans/">Lesson List</a><a class="disabled" aria-disabled="true">← Previous</a><a href="Unit-4B-Risky-Business.html">Next →</a></nav>
 <div class="layout">
 <aside class="sidebar"><h2>Contents</h2><nav class="toc"><a class="lvl1" href="#draft-1-complete-lesson-plan">Draft 1 — Complete Lesson Plan</a>
 <a class="lvl2" href="#american-english-file-4-3rd-edition">American English File 4 · 3rd Edition</a>
@@ -3030,6 +3055,7 @@ SPEAKING
 </article>
 <footer class="footer">Converted from the original Markdown lesson plan · Mohammad Bakhshandeh</footer>
 </main></div>
+<nav class="lesson-nav bottom" aria-label="Lesson navigation"><a class="disabled" aria-disabled="true">← Previous</a><a class="list" href="https://don223871-ui.github.io/AEF4-Lesson-Plans/">Lesson List</a><a href="Unit-4B-Risky-Business.html">Next →</a></nav>
 <button id="backtop" class="backtop" title="Back to top" aria-label="Back to top">↑</button>
 
 <script>
@@ -3038,6 +3064,20 @@ SPEAKING
  function u(){const d=document.documentElement,m=d.scrollHeight-d.clientHeight;p.style.width=(m>0?(d.scrollTop/m)*100:0)+'%';}
  addEventListener('scroll',u,{passive:true});u();
  document.getElementById('backtop').onclick=()=>scrollTo({top:0,behavior:'smooth'});
+})();
+</script>
+
+
+<script id="content-protection">
+(function(){
+  document.addEventListener('contextmenu',function(e){e.preventDefault();});
+  document.addEventListener('copy',function(e){e.preventDefault();});
+  document.addEventListener('cut',function(e){e.preventDefault();});
+  document.addEventListener('dragstart',function(e){e.preventDefault();});
+  document.addEventListener('keydown',function(e){
+    const k=(e.key||'').toLowerCase();
+    if(e.key==='PrintScreen'||(e.ctrlKey&&['p','u','s','c','x'].includes(k))||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(k))){e.preventDefault();}
+  });
 })();
 </script>
 
