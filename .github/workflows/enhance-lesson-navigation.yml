@@ -1,0 +1,83 @@
+name: Enhance Lesson Plan Navigation
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  enhance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add navigation to lesson plans
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          pages = {
+              'Unit-4A-Stormy-Weather.html': {
+                  'current': 'Unit 4A · Stormy Weather',
+                  'prev': ('', ''),
+                  'next': ('Unit 4B · Risky Business', 'Unit-4B-Risky-Business.html'),
+              },
+              'Unit-4B-Risky-Business.html': {
+                  'current': 'Unit 4B · Risky Business',
+                  'prev': ('Unit 4A · Stormy Weather', 'Unit-4A-Stormy-Weather.html'),
+                  'next': ('', ''),
+              },
+          }
+
+          css = r'''
+          /* Lesson Plan navigation enhancement */
+          .lesson-nav{position:sticky;top:67px;z-index:45;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);box-shadow:0 5px 18px rgba(22,39,54,.05)}
+          .lesson-nav-inner{max-width:1500px;margin:auto;padding:9px 24px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+          .lesson-nav a{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:6px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--accent-2);font-size:.82rem;font-weight:700;white-space:nowrap;transition:.15s ease}
+          .lesson-nav a:hover{background:var(--surface-2);text-decoration:none;transform:translateY(-1px)}
+          .lesson-nav .active{background:var(--surface-2);border-color:#c5d1da}
+          .lesson-nav .library{border-color:transparent;background:var(--accent);color:#fff}
+          .lesson-nav .library:hover{background:var(--accent-2);color:#fff}
+          .lesson-nav .disabled{opacity:.38;pointer-events:none}
+          .backtop{opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s ease,visibility .2s ease,transform .2s ease}
+          .backtop.show{opacity:1;visibility:visible;transform:translateY(0)}
+          @media(max-width:700px){.lesson-nav{top:57px}.lesson-nav-inner{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding:8px 12px}.lesson-nav a{font-size:.76rem;padding:5px 10px}.lesson-nav .current{display:none}}
+          '''
+
+          for filename, info in pages.items():
+              p = Path(filename)
+              text = p.read_text(encoding='utf-8')
+              if 'class="lesson-nav"' in text:
+                  continue
+
+              text = text.replace('</style>', css + '\n</style>', 1)
+
+              prev_label, prev_href = info['prev']
+              next_label, next_href = info['next']
+              prev_html = f'<a href="{prev_href}">← Previous</a>' if prev_href else '<a class="disabled">← Previous</a>'
+              next_html = f'<a href="{next_href">→ Next</a>' if False else (f'<a href="{next_href}">Next →</a>' if next_href else '<a class="disabled">Next →</a>')
+
+              nav = f'''\n<nav class="lesson-nav" aria-label="Lesson plan navigation">\n  <div class="lesson-nav-inner">\n    <a class="library" href="index.html">📚 Lesson Plan Library</a>\n    {prev_html}\n    <a class="active current">{info['current']}</a>\n    {next_html}\n  </div>\n</nav>\n'''
+              text = text.replace('</header>', '</header>' + nav, 1)
+
+              old_js = re.compile(r'<script>\s*\(function\(\)\{.*?\}\)\(\);\s*</script>', re.S)
+              new_js = '''<script>\n(function(){\n  const progress=document.getElementById('progress');\n  const backtop=document.getElementById('backtop');\n  function update(){\n    const d=document.documentElement;\n    const max=d.scrollHeight-d.clientHeight;\n    progress.style.width=(max>0?(d.scrollTop/max)*100:0)+'%';\n    if(d.scrollTop>500) backtop.classList.add('show');\n    else backtop.classList.remove('show');\n  }\n  addEventListener('scroll',update,{passive:true});\n  update();\n  backtop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));\n})();\n</script>'''
+              text, n = old_js.subn(new_js, text, count=1)
+              if n == 0:
+                  raise SystemExit(f'Could not locate existing script in {filename}')
+              p.write_text(text, encoding='utf-8')
+
+          PY
+
+      - name: Commit enhancements
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Unit-4A-Stormy-Weather.html Unit-4B-Risky-Business.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Enhance lesson navigation and back-to-top"
+          git push
